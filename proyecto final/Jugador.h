@@ -18,6 +18,7 @@ private:
     int dir=1;
     bool flag=true;
     int cont=0;
+    int cont1=0;
     int spriteX = 0;
     int spriteY = 120;
     int spriteWidth;

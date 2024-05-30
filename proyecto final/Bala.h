@@ -1,27 +1,25 @@
 #ifndef BALA_H
 #define BALA_H
 
-#include <QGraphicsEllipseItem>
+#include <QGraphicsRectItem>
 #include <QGraphicsScene>
-#include <QGraphicsView>
+#include <QObject>
 #include <QTimer>
-#include <QPointF>
 #include "enemigos.h"
 
-class Bala : public QObject, public QGraphicsEllipseItem {
+class Bala : public QObject, public QGraphicsRectItem {
     Q_OBJECT
-
 public:
-    Bala(QGraphicsScene *scene, const QPointF &startPos, const QPointF &targetPos, Enemigos *&enem1, QList<QGraphicsRectItem *> &obst);
+    Bala(QGraphicsScene *scene, const QPointF &startPos, const QPointF &targetPos, QVector<Enemigos*> &enemigos, QList<QGraphicsRectItem *> &obst);
 
 public slots:
     void mover();
 
 private:
     QPointF targetPos;
-    QTimer *timer;
-    Enemigos *&enem1;
+    QVector<Enemigos*> &enemigos;
     QList<QGraphicsRectItem *> &obst;
+    QTimer *timer;
 };
 
 #endif // BALA_H

@@ -23,6 +23,7 @@ public:
     void mousePressEvent(QMouseEvent *event);
     void animacionTiro(const QPointF &posTiro);
     void muerte(int contadormuerte, Enemigos *enem1);
+    void incrementarContador();
     Jugador *jug1;
     QGraphicsScene *scene;
     Enemigos *enem1;
@@ -31,10 +32,12 @@ private slots:
     void hmov(Particula *bola);
     void movjug(Jugador *jug1);
     void enemigomov(Enemigos *enem1);
+    //void enemigomov();
    // void ajustarVista();
 private:
     Ui::MainWindow *ui;
     QTimer *timer;
     QList<QGraphicsRectItem*> obst;
+    QVector<Enemigos*> enemigos;
 };
 #endif // MAINWINDOW_H

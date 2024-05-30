@@ -18,7 +18,7 @@ Jugador::Jugador(QGraphicsView *view,QGraphicsItem *im):QGraphicsPixmapItem(im)
     //setPixmap(QPixmap(":/sprites.png"));
     yInicial = y;
     x=0;
-    y=80;
+    y=275;
     setFlag(QGraphicsItem::ItemIsFocusable); //Inicialización opcional para decir que tiene el foco para eventos del teclado
     //sceneRect = scene->sceneRect();
     //qDebug() << scene->sceneRect();
@@ -31,19 +31,18 @@ Jugador::Jugador(QGraphicsView *view,QGraphicsItem *im):QGraphicsPixmapItem(im)
 
 void Jugador::cambiarSprite(const QString &spritePath, int dir) {
     int spriteWidth = 128;
-    int spriteHeight = 128;
+    int spriteHeight = 68;
     int scaledWidth = 100;
-    int scaledHeight = 100;
-    spriteX = spriteWidth * cont; // Calcula la posición X del sprite actual
+    int scaledHeight = 68;
+    spriteX = spriteWidth * cont1; // Calcula la posición X del sprite actual
     spriteY = dir; // Ajusta la posición Y según la dirección
     spriteSheet.load("C:/Users/JojhanSebastian/Downloads/Soldier_1/Shot_1.png");
     QPixmap sprite = spriteSheet.copy(spriteX, spriteY, spriteWidth, spriteHeight);
     QPixmap scaledSprite = sprite.scaled(scaledWidth, scaledHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
     setPixmap(scaledSprite);
-    cont++;
-    if(cont == 4) { cont = 0; }
-    cont++;
+    cont1++;
+    if (cont1 == 4) { cont1 = 0; }  // Asegura que el contador se reinicie correctamente
 }
 
 void Jugador::keyPressEvent(QKeyEvent *event) {
@@ -51,12 +50,12 @@ void Jugador::keyPressEvent(QKeyEvent *event) {
     case Qt::Key_A:
         // Movimiento a la izquierda
         moveBy(-5, 0);
-        setSpriteizquierda(18);
+        setSpriteizquierda(0);
         break;
     case Qt::Key_D:
         // Movimiento a la derecha
         moveBy(5, 0);
-        setSpritederecha(18);
+        setSpritederecha(0);
         break;
     case Qt::Key_W:
         // Salto solo si no está en otro salto
@@ -84,7 +83,7 @@ void Jugador::moveBy(int dx, int dy)
     if (newX > 3880 - 80 || newX < 0) {
         newX -= dx;
     }
-    if (newY > 85 || newY < 0) {
+    if (newY > 275 || newY < 154) {
         newY -= dy;
     }
 
@@ -114,12 +113,12 @@ void Jugador::moveBy(int dx, int dy)
 void Jugador::setSpritederecha(int dir)
 {
     int spriteWidth = 128;
-    int spriteHeight = 128;
+    int spriteHeight = 69;
     int scaledWidth = 100;
-    int scaledHeight = 100;
+    int scaledHeight = 69;
     spriteX = spriteWidth * cont; // Calcula la posición X del sprite actual
     spriteY = dir; // Ajusta la posición Y según la dirección
-    spriteSheet.load("C:/Users/JojhanSebastian/Downloads/Soldier_1/Walk.png");
+    spriteSheet.load("C:/Users/JojhanSebastian/Downloads/Soldier_1/Walk12.png");
 
     QPixmap sprite = spriteSheet.copy(spriteX, spriteY, spriteWidth, spriteHeight);
     QPixmap scaledSprite = sprite.scaled(scaledWidth, scaledHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);

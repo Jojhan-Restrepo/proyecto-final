@@ -9,6 +9,7 @@
 #include "PropQGraphicsView.h"
 #include "enemigos.h"
 #include "Bala.h"
+#include <cstdlib> // Necesario para la función rand()
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow) //La interfaz diseñada en Qt Designer
@@ -31,18 +32,10 @@ MainWindow::MainWindow(QWidget *parent)
     QPixmap backgroundImage("C:/Users/JojhanSebastian/Downloads/Soldier_1/back1.png");
     QGraphicsPixmapItem *background = scene->addPixmap(backgroundImage);
 
-    /*QTimer *bgTimer = new QTimer(this);
-    connect(bgTimer, &QTimer::timeout, [=]() {
-        // Update background position
-        QPointF newPos = background->pos() - QPointF(1, 0); // Adjust the movement speed as needed
-        background->setPos(newPos);
-        qDebug() << newPos << " " << scene->width() << background->pos().x() + background->pixmap().width();
-
-        // Wrap around when reaching the end of the scene
-        if (background->pos().x() + background->pixmap().width() <= scene->width())
-            background->setPos(QPointF(0, 0)); // Reset to the beginning
-    });
-    bgTimer->start(50); // Update every 50 milliseconds*/
+    background->setPos(
+        (scene->width() - background->pixmap().width()) / 2,
+        (scene->height() - background->pixmap().height()) / 2
+        );
 
     Particula *bola = new Particula(ui->graphicsView, 50.0, 100.0, 100.0, 75);
     scene->addItem(bola);
@@ -53,25 +46,37 @@ MainWindow::MainWindow(QWidget *parent)
     jug1->setPos(100,0);
     qDebug() << ui->graphicsView->size()<<" "<<scene->sceneRect();
 
-    enem1= new Enemigos(ui->graphicsView);
-    scene -> addItem(enem1);
-    enem1->setPos(100,0);
+    int numEnemigos = 2; // Puedes ajustar el número de enemigos según lo desees
+    for (int i = 0; i < numEnemigos; ++i) {
+        Enemigos *enemigo = new Enemigos(ui->graphicsView);
+        enemigos.append(enemigo);
+        scene->addItem(enemigo);
+
+        // Generar una posición aleatoria en el eje x entre 100 y 700 unidades
+        int xPos = rand() % 3780 + 100; // 100 es el valor mínimo, 3880 es el valor máximo
+
+        // Utiliza la posición aleatoria generada para la coordenada x
+        enemigo->setPos(xPos, 250); // 250 es la posición en el eje y
+    }
 
     timer = new QTimer;
     //connect(timer,SIGNAL(timeout()),this,SLOT(hmov(*bola)));
     connect(timer, &QTimer::timeout, [=]() {
         hmov(bola);
         movjug(jug1);
-        enemigomov(enem1);
+        for (auto enem : enemigos) {
+            enemigomov(enem);}
         if (bola->collidesWithItem(jug1)) {
             // Handle collision logic here
             qDebug() << "Collision detected between Particula and Jugador";
         }
     });
     timer->stop();
-    for(int i=0;i<3; i++){
-        obst.append(scene->addRect(200+(i*100),100,40,40,QPen(Qt::black), QBrush(Qt::black)));
-    }
+    /*for(int i=0;i<3; i++){
+        obst.append(scene->addRect(200+(i*100),250,40,40,QPen(Qt::black), QBrush(Qt::black)));
+    }*/
+    obst.append(scene->addRect(300,250,40,40,QPen(Qt::black), QBrush(Qt::black)));
+    obst.append(scene->addRect(600,250,40,40,QPen(Qt::black), QBrush(Qt::black)));
     if (bola->collidesWithItem(jug1)) {
         // Handle collision logic here
         qDebug() << "Collision detected between Particula and Jugador";
@@ -98,7 +103,14 @@ void MainWindow::on_pushButton_clicked()
     if (timer->isActive()) timer->stop();
     else timer->start(60);
 
+    // Llama a la función para mover los enemigos cuando se inicia el temporizador
+    if (timer->isActive()) {
+        for (auto enem : enemigos) {
+            enem->movimiento(10,0); // Aquí llamas a la función movimiento para cada enemigo
+        }
+    }
 }
+
 void MainWindow::movjug(Jugador *jug1)
 {
     tiempoTrans+=0.5;
@@ -119,7 +131,8 @@ void MainWindow::hmov(Particula *bola)
 }
 void MainWindow::enemigomov(Enemigos *enem1) {
     if (enem1) {
-        enem1->movimiento(5, 0);
+        // Llama al método movimiento de la clase Enemigos
+        enem1->movimiento(10,0); // Cambia esto para llamar a movimiento con los parámetros adecuados
     }
 }
 
@@ -127,14 +140,18 @@ void MainWindow::mousePressEvent(QMouseEvent *event){
     QPointF mousePos = ui->graphicsView->mapToScene(event->pos());
     qDebug()<<mousePos;
     animacionTiro(mousePos);
-    jug1->cambiarSprite(":/images/new_sprite.png",18);
+    incrementarContador();
+    //jug1->cambiarSprite(":/images/new_sprite.png",0);
     jug1->setFocus();
 }
 static int contadormuerte = 0;
 static int totalenemigos=1;
-void MainWindow::animacionTiro(const QPointF &posTiro){
-    new Bala(scene, jug1->pos(), posTiro, enem1, obst);
+void MainWindow::animacionTiro(const QPointF &posTiro) {
+    new Bala(scene, jug1->pos(), posTiro, enemigos, obst);
 }
 
-
+void MainWindow::incrementarContador()
+{
+    jug1->cambiarSprite("C:/Users/JojhanSebastian/Downloads/Soldier_1/Shot_1.png",0);
+}
 

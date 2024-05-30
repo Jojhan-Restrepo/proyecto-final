@@ -9,8 +9,8 @@
 //Definir el jugador y la imgen
 Enemigos::Enemigos(QGraphicsView *view,QGraphicsItem *im):QGraphicsPixmapItem(im)
 {
-    x=0;
-    y=0;
+    //x=0;
+    //y=0;
     setFlag(QGraphicsItem::ItemIsFocusable); //Inicialización opcional para decir que tiene el foco para eventos del teclado
     viewRect = view->size();
     QRectF sceneRect = view->sceneRect();
@@ -18,36 +18,61 @@ Enemigos::Enemigos(QGraphicsView *view,QGraphicsItem *im):QGraphicsPixmapItem(im
     spriteSheet.load("C:/Users/JojhanSebastian/Downloads/Soldier_2/Walk.png");
     QPixmap sprite = spriteSheet.copy(spriteX, spriteY, spriteWidth, spriteHeight);
     setPixmap(sprite);
+    velocidadX = 5; // Velocidad de movimiento en el eje x
+    velocidadY = 0; // Velocidad de movimiento en el eje y
+    movingRight = true;
 }
 
-void Enemigos::movimiento(int dx, int dy)
-{
+void Enemigos::movimiento(int dx, int dy) {
     qreal newX = x + dx;
     qreal newY = y + dy;
-    static bool movingRight = true;
 
-    // Si el personaje está en los bordes horizontalmente, cambia de dirección
+    bool collisionDetected = false; // Variable para detectar colisiones con otros objetos
+
+    // Verifica si hay colisiones con objetos en la escena
+    for (QGraphicsItem *item : collidingItems()) {
+        if (dynamic_cast<QGraphicsRectItem *>(item)) {
+            collisionDetected = true;
+            break;
+        }
+    }
+
+    // Si hay colisión con algún objeto, invierte la dirección de movimiento
+    if (collisionDetected) {
+        dx = -dx;
+        movingRight = !movingRight; // Cambia la dirección
+    }
+
+    // Si el enemigo está en los bordes horizontalmente, cambia de dirección
     if (newX >= 3880 - 80 || newX <= 0) {
         movingRight = !movingRight;
     }
 
-    // Si estamos moviéndonos hacia la derecha, ajusta la posición hacia la derecha
+    // Ajusta la posición en función de la dirección de movimiento
     if (movingRight) {
         newX = x + dx;
-        setSpritederecha(18);
-    }
-    // Si estamos moviéndonos hacia la izquierda, ajusta la posición hacia la izquierda
-    else {
+        setSpritederecha(18); // Ajusta el sprite para que mire hacia la derecha
+    } else {
         newX = x - dx;
-        setSpriteizquierda(18);
+        setSpriteizquierda(18); // Ajusta el sprite para que mire hacia la izquierda
     }
 
-    // Si el personaje llega a los bordes superior o inferior, invierte la dirección vertical
-    if (newY > 192 || newY < 0) {
-        dy = -dy; // Invierte la dirección vertical
-        newY = y + dy; // Calcula la nueva posición con la dirección invertida
+    // Verifica si hay colisión con los rectángulos y ajusta la posición si es necesario
+    QRectF newRect(newX, newY, pixmap().width(), pixmap().height());
+    for (QGraphicsItem *item : collidingItems()) {
+        if (dynamic_cast<QGraphicsRectItem *>(item)) {
+            QRectF intersectedRect = newRect.intersected(item->boundingRect());
+            if (!intersectedRect.isEmpty()) {
+                if (dx > 0) {
+                    newX -= intersectedRect.width();
+                } else {
+                    newX += intersectedRect.width();
+                }
+            }
+        }
     }
 
+    // Aplica la nueva posición
     setPos(newX, newY);
     x = newX;
     y = newY;
