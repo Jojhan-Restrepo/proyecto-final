@@ -6,6 +6,7 @@
 #include "Jugador.h"
 #include "Particula.h"
 #include "enemigos.h"
+#include "trampas.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -32,6 +33,7 @@ private slots:
     void hmov(Particula *bola);
     void movjug(Jugador *jug1);
     void enemigomov(Enemigos *enem1);
+    void Trampa(Trampas *trampa);
     //void enemigomov();
    // void ajustarVista();
 private:
@@ -39,5 +41,6 @@ private:
     QTimer *timer;
     QList<QGraphicsRectItem*> obst;
     QVector<Enemigos*> enemigos;
+    QVector<Trampas*> trampas;
 };
 #endif // MAINWINDOW_H

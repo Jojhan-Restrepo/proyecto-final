@@ -44,7 +44,7 @@ public:
     void setSpriteizquierda(int dir);
     void cambiarSprite(const QString &spritePath, int dir);
 protected:
-    void Salto();
+    void IniciarSalto();
     void Caer();
     void ActualizarPosicionVertical();
 };

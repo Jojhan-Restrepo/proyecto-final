@@ -10,6 +10,7 @@
 #include "enemigos.h"
 #include "Bala.h"
 #include <cstdlib> // Necesario para la función rand()
+#include "trampas.h"
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow) //La interfaz diseñada en Qt Designer
@@ -36,7 +37,9 @@ MainWindow::MainWindow(QWidget *parent)
         (scene->width() - background->pixmap().width()) / 2,
         (scene->height() - background->pixmap().height()) / 2
         );
-
+    Trampas *trampa = new Trampas(100, 275, 56.07, 87, "C:/Users/JojhanSebastian/Downloads/Soldier_2/trampa.png");
+    scene->addItem(trampa);
+    trampas.append(trampa);
     Particula *bola = new Particula(ui->graphicsView, 50.0, 100.0, 100.0, 75);
     scene->addItem(bola);
     bola->setPos(100,100);
@@ -46,17 +49,16 @@ MainWindow::MainWindow(QWidget *parent)
     jug1->setPos(100,0);
     qDebug() << ui->graphicsView->size()<<" "<<scene->sceneRect();
 
-    int numEnemigos = 2; // Puedes ajustar el número de enemigos según lo desees
+    int numEnemigos = 5; // Puedes ajustar el número de enemigos según lo desees
     for (int i = 0; i < numEnemigos; ++i) {
-        Enemigos *enemigo = new Enemigos(ui->graphicsView);
+        //qreal xPos = rand() % 3780 + 100; // 100 es el valor mínimo, 3880 es el valor máximo
+        qreal yPos = 270; // Utiliza la posición fija para la coordenada y
+        Enemigos *enemigo = new Enemigos(ui->graphicsView, 200+(i*300), yPos);
         enemigos.append(enemigo);
         scene->addItem(enemigo);
 
-        // Generar una posición aleatoria en el eje x entre 100 y 700 unidades
-        int xPos = rand() % 3780 + 100; // 100 es el valor mínimo, 3880 es el valor máximo
-
-        // Utiliza la posición aleatoria generada para la coordenada x
-        enemigo->setPos(xPos, 250); // 250 es la posición en el eje y
+        // Llama al método disparar para cada enemigo
+        //enemigo->disparar();
     }
 
     timer = new QTimer;
@@ -64,19 +66,25 @@ MainWindow::MainWindow(QWidget *parent)
     connect(timer, &QTimer::timeout, [=]() {
         hmov(bola);
         movjug(jug1);
+        //Trampa(trampa);
         for (auto enem : enemigos) {
-            enemigomov(enem);}
+            enemigomov(enem);
+            //enem->disparar();
+        }
         if (bola->collidesWithItem(jug1)) {
             // Handle collision logic here
             qDebug() << "Collision detected between Particula and Jugador";
         }
     });
     timer->stop();
-    /*for(int i=0;i<3; i++){
-        obst.append(scene->addRect(200+(i*100),250,40,40,QPen(Qt::black), QBrush(Qt::black)));
-    }*/
-    obst.append(scene->addRect(300,250,40,40,QPen(Qt::black), QBrush(Qt::black)));
-    obst.append(scene->addRect(600,250,40,40,QPen(Qt::black), QBrush(Qt::black)));
+    QImage caja("C:/Users/JojhanSebastian/Downloads/Soldier_1/caja1.jpg");
+    QBrush brocha(caja);
+    for(int i=0;i<9; i++){
+        obst.append(scene->addRect(300+(i*300),280,40,40,QPen(Qt::black), brocha));
+    }
+    // Llama a setSprite para cambiar el sprite de la trampa
+    //obst.append(scene->addRect(0,270,40,40,QPen(Qt::NoPen), brocha));
+    //obst.append(scene->addRect(600,270,40,40,QPen(Qt::NoPen), QBrush(Qt::black)));
     if (bola->collidesWithItem(jug1)) {
         // Handle collision logic here
         qDebug() << "Collision detected between Particula and Jugador";
@@ -105,8 +113,9 @@ void MainWindow::on_pushButton_clicked()
 
     // Llama a la función para mover los enemigos cuando se inicia el temporizador
     if (timer->isActive()) {
+        //trampa->setSprite(0);
         for (auto enem : enemigos) {
-            enem->movimiento(10,0); // Aquí llamas a la función movimiento para cada enemigo
+            enem->movimiento(4,0); // Aquí llamas a la función movimiento para cada enemigo
         }
     }
 }
@@ -132,7 +141,7 @@ void MainWindow::hmov(Particula *bola)
 void MainWindow::enemigomov(Enemigos *enem1) {
     if (enem1) {
         // Llama al método movimiento de la clase Enemigos
-        enem1->movimiento(10,0); // Cambia esto para llamar a movimiento con los parámetros adecuados
+        enem1->movimiento(4,0); // Cambia esto para llamar a movimiento con los parámetros adecuados
     }
 }
 
@@ -147,7 +156,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event){
 static int contadormuerte = 0;
 static int totalenemigos=1;
 void MainWindow::animacionTiro(const QPointF &posTiro) {
-    new Bala(scene, jug1->pos(), posTiro, enemigos, obst);
+    new Bala(scene, jug1->pos(), posTiro, enemigos, obst);   
 }
 
 void MainWindow::incrementarContador()
@@ -155,3 +164,6 @@ void MainWindow::incrementarContador()
     jug1->cambiarSprite("C:/Users/JojhanSebastian/Downloads/Soldier_1/Shot_1.png",0);
 }
 
+void MainWindow::Trampa(Trampas *trampa){
+    trampa->setSprite(0);
+}

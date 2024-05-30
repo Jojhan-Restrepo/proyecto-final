@@ -8,25 +8,25 @@
 #include "Particula.h"
 #include <cmath>
 #include <QTimer>
-//Definir el jugador y la imgen
+
+// Definir el jugador y la imagen
 const qreal Jugador::SALTO_ALTURA = 50; // Altura máxima del salto
 const int Jugador::SALTO_DURACION = 100; // Duración del salto en milisegundos
 const int Jugador::SALTO_INTERVALO = 10; // Intervalo del temporizador en milisegundos
 const qreal Jugador::GRAVEDAD = 0.1;
-Jugador::Jugador(QGraphicsView *view,QGraphicsItem *im):QGraphicsPixmapItem(im)
+
+Jugador::Jugador(QGraphicsView *view, QGraphicsItem *im) : QGraphicsPixmapItem(im)
 {
-    //setPixmap(QPixmap(":/sprites.png"));
-    yInicial = y;
-    x=0;
-    y=275;
-    setFlag(QGraphicsItem::ItemIsFocusable); //Inicialización opcional para decir que tiene el foco para eventos del teclado
-    //sceneRect = scene->sceneRect();
-    //qDebug() << scene->sceneRect();
+    // Inicializa el jugador
+    yInicial = 275; // Ajusta la posición inicial en Y
+    x = 0;
+    y = yInicial;
+    setFlag(QGraphicsItem::ItemIsFocusable); // Permitir que el jugador reciba eventos del teclado
     viewRect = view->size();
     QRectF sceneRect = view->sceneRect();
-    qDebug() << viewRect << " "<< sceneRect << " "<<view->size().width();
-    bool enSalto = false;
-    qreal velocidadVertical = 0;
+    qDebug() << viewRect << " " << sceneRect << " " << view->size().width();
+    enSalto = false; // Asegurarse de que enSalto se inicialice correctamente
+    velocidadVertical = 0; // Inicializa la velocidad vertical
 }
 
 void Jugador::cambiarSprite(const QString &spritePath, int dir) {
@@ -58,37 +58,27 @@ void Jugador::keyPressEvent(QKeyEvent *event) {
         setSpritederecha(0);
         break;
     case Qt::Key_W:
-        // Salto solo si no está en otro salto
-        if (!enSalto) {
-            enSalto = true;
-            Salto();
-        }
+        IniciarSalto(); // Iniciar el salto solo cuando se presiona la tecla "W"
         break;
     case Qt::Key_S:
         // Movimiento hacia abajo
-        moveBy(0, 5);
+        //moveBy(0, 5);
         break;
     default:
         QGraphicsItem::keyPressEvent(event);
     }
 }
 
-
 void Jugador::moveBy(int dx, int dy)
 {
     qreal newX = x + dx;
     qreal newY = y + dy;
-    setPos(newX, newY);
 
-    if (newX > 3880 - 80 || newX < 0) {
-        newX -= dx;
-    }
-    if (newY > 275 || newY < 154) {
-        newY -= dy;
-    }
-
+    // Verificar colisiones y límites antes de establecer la nueva posición
     bool collisionDetected = false;
 
+    // Verificar colisiones solo en la dirección del movimiento actual
+    setPos(newX, newY);
     for (QGraphicsItem *item : collidingItems())
     {
         if (dynamic_cast<QGraphicsRectItem *>(item))
@@ -100,14 +90,22 @@ void Jugador::moveBy(int dx, int dy)
 
     if (collisionDetected)
     {
-        setPos(x, y); // Revertir a la posición anterior
+        // Si se detecta una colisión, revertir la posición
+        setPos(x, y);
     }
     else
     {
+        // Aplicar límites de movimiento
+        if (newX > 3880 - 80) newX = 3880 - 80;
+        if (newX < 0) newX = 0;
+        if (newY > yInicial) newY = yInicial; // El jugador no debe ir por debajo del suelo
+        if (newY < 175) newY = 175; // Ajustar el límite superior si es necesario
+
+        // Establecer la nueva posición
+        setPos(newX, newY);
         x = newX;
         y = newY;
     }
-
 }
 
 void Jugador::setSpritederecha(int dir)
@@ -128,6 +126,7 @@ void Jugador::setSpritederecha(int dir)
     cont++;
     if(cont == 7) { cont = 0; }
 }
+
 void Jugador::setSpriteizquierda(int dir)
 {
     int spriteWidth = 128;
@@ -146,20 +145,23 @@ void Jugador::setSpriteizquierda(int dir)
     if(cont == 7) { cont = 0; }
 }
 
-void Jugador::Salto() {
-    dy = -5; // Cambié la velocidad inicial del salto a -5 para que el personaje se mueva hacia arriba más rápidamente
-    QTimer *saltoTimer = new QTimer(this);
-    connect(saltoTimer, &QTimer::timeout, [=]() {
-        moveBy(0, dy);
-        dy += GRAVEDAD; // Agregué la gravedad al dy en cada iteración para simular el efecto de la gravedad
-        if (y >= yInicial) { // Detenemos el salto cuando el personaje alcanza el suelo
-            y = yInicial;
-            enSalto = false;
-            saltoTimer->stop();
-            delete saltoTimer;
-        }
-    });
-    saltoTimer->start(20);
+void Jugador::IniciarSalto() {
+    if (!enSalto) { // Solo inicia el salto si el jugador no está ya en otro salto
+        enSalto = true;
+        dy = -5; // Velocidad inicial del salto
+        QTimer *saltoTimer = new QTimer(this);
+        connect(saltoTimer, &QTimer::timeout, [=]() {
+            moveBy(0, dy);
+            dy += GRAVEDAD; // Aplica la gravedad
+            if (y >= yInicial) { // Detiene el salto cuando el jugador alcanza el suelo
+                y = yInicial;
+                enSalto = false;
+                saltoTimer->stop();
+                delete saltoTimer;
+            }
+        });
+        saltoTimer->start(20);
+    }
 }
 
 void Jugador::Caer() {
@@ -178,6 +180,5 @@ void Jugador::ActualizarPosicionVertical() {
         setY(nuevaY);
     }
 }
-
 
 

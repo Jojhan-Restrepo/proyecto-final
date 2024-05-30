@@ -15,7 +15,8 @@ SOURCES += \
     PropQGRaphicsView.cpp \
     enemigos.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    trampas.cpp
 
 HEADERS += \
     Bala.h \
@@ -23,7 +24,8 @@ HEADERS += \
     Particula.h \
     PropQGraphicsView.h \
     enemigos.h \
-    mainwindow.h
+    mainwindow.h \
+    trampas.h
 
 FORMS += \
     mainwindow.ui
