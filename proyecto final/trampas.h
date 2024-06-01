@@ -20,3 +20,4 @@ private slots:
 };
 
 #endif // TRAMPAS_H
+

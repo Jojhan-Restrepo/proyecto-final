@@ -13,6 +13,7 @@ SOURCES += \
     Jugador.cpp \
     Particula.cpp \
     PropQGRaphicsView.cpp \
+    balaenemigo.cpp \
     enemigos.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -23,6 +24,7 @@ HEADERS += \
     Jugador.h \
     Particula.h \
     PropQGraphicsView.h \
+    balaenemigo.h \
     enemigos.h \
     mainwindow.h \
     trampas.h

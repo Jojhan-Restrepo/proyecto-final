@@ -16,14 +16,21 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QPushButton" name="pushButton">
+     <widget class="PropQGraphicsView" name="graphicsView"/>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pushButton_2">
       <property name="text">
-       <string>Presionar</string>
+       <string>PushButton</string>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="PropQGraphicsView" name="graphicsView"/>
+     <widget class="QPushButton" name="pushButton">
+      <property name="text">
+       <string>iniciar </string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -36,8 +43,26 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuescena_1">
+    <property name="title">
+     <string>escena 1</string>
+    </property>
+    <addaction name="actionCambio"/>
+   </widget>
+   <widget class="QMenu" name="menuescena_2">
+    <property name="title">
+     <string>escena 2</string>
+    </property>
+   </widget>
+   <addaction name="menuescena_1"/>
+   <addaction name="menuescena_2"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionCambio">
+   <property name="text">
+    <string>Cambio</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

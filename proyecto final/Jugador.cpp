@@ -10,8 +10,8 @@
 #include <QTimer>
 
 // Definir el jugador y la imagen
-const qreal Jugador::SALTO_ALTURA = 50; // Altura máxima del salto
-const int Jugador::SALTO_DURACION = 100; // Duración del salto en milisegundos
+const qreal Jugador::SALTO_ALTURA = 30; // Altura máxima del salto
+const int Jugador::SALTO_DURACION = 80; // Duración del salto en milisegundos
 const int Jugador::SALTO_INTERVALO = 10; // Intervalo del temporizador en milisegundos
 const qreal Jugador::GRAVEDAD = 0.1;
 

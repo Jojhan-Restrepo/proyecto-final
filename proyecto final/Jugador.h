@@ -49,3 +49,4 @@ protected:
     void ActualizarPosicionVertical();
 };
 #endif // JUGADOR_H
+

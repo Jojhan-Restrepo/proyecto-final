@@ -6,7 +6,7 @@
 #include <QObject>
 #include <QTimer>
 #include "enemigos.h"
-
+#include "Jugador.h"
 class Bala : public QObject, public QGraphicsRectItem {
     Q_OBJECT
 public:
@@ -23,3 +23,4 @@ private:
 };
 
 #endif // BALA_H
+

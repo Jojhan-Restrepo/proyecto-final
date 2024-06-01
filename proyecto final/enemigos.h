@@ -19,6 +19,7 @@ public:
     void incrementarColision();
     int getContador() const;
     //void disparar();
+    //void disparar();
     qreal x;
     qreal y;
 
@@ -44,4 +45,5 @@ private:
 };
 
 #endif // ENEMIGOS_H
+
 

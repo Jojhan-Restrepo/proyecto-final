@@ -6,6 +6,9 @@
 #include <QDebug>
 #include <QGraphicsPixmapItem>
 #include "Bala.h"
+#include "Jugador.h"
+#include "balaenemigo.h"
+#include <cmath>
 //#include "balaenemigos.h"
 //Definir el jugador y la imgen
 Enemigos::Enemigos(QGraphicsView *view, qreal startX, qreal startY, QGraphicsItem *im) : QGraphicsPixmapItem(im), x(startX), y(startY)
@@ -103,10 +106,11 @@ void Enemigos::setSpriteizquierda(int dir)
     if(cont == 8) { cont = 0; }
 }
 /*void Enemigos::disparar() {
-    QPointF direccion(5, 0); // Dirección de disparo (puedes ajustarla según tus necesidades)
+    QPointF startPos = mapToScene(0, 0); // Obtiene la posición del enemigo en relación con la escena
+    QPointF targetPos =  Calcula la posición del objetivo, por ejemplo, la posición del jugador ;
 
-    QPointF startPos = pos(); // Posición inicial de la bala (podrías ajustarlo para que las balas salgan de una posición específica en el enemigo)
-
-    BalaEnemigos *bala = new BalaEnemigos(startPos, direccion, scene(), obst, enemigos, jug1); // Pasa una referencia al jugador
+    // Crea una nueva instancia de BalaEnemigo y la agrega a la escena
+    BalaEnemigo *bala = new BalaEnemigo(scene(), startPos, targetPos, collidingItems());
 }*/
+
 
