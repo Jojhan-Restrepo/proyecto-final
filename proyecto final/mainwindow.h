@@ -2,10 +2,15 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QGraphicsScene>
+#include <QGraphicsView>
 #include <QTimer>
-#include "Jugador.h"
 #include "Particula.h"
+#include "Jugador.h"
 #include "enemigos.h"
+#include "Bala.h"
+#include "trampas.h"
+#include "trampas2.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -17,27 +22,45 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    bool clic;
-    float tiempoTrans;
-    int contadormuerte=0;
-    void mousePressEvent(QMouseEvent *event);
-    void animacionTiro(const QPointF &posTiro);
-    void muerte(int contadormuerte, Enemigos *enem1);
-    void incrementarContador();
-    Jugador *jug1;
-    QGraphicsScene *scene;
-    Enemigos *enem1;
+
 private slots:
-    void on_pushButton_clicked(); //Se crea una vez vamos al slot
-    void hmov(Particula *bola);
-    void movjug(Jugador *jug1);
-    void enemigomov(Enemigos *enem1);
-    //void enemigomov();
-   // void ajustarVista();
+    void on_pushButton_clicked();
+    void startGame();
+    void showScores();
+    void updateGame();
+    void resetGame();
+    void returnToMenu();
+
+
 private:
     Ui::MainWindow *ui;
+    QGraphicsScene *menuScene;
+    QGraphicsScene *gameScene;
     QTimer *timer;
-    QList<QGraphicsRectItem*> obst;
+    Particula *bola;
+    Jugador *jug1;
+    trampas2 *trampa2;
     QVector<Enemigos*> enemigos;
+    QVector<Trampas*> trampas;
+    QVector<Jugador*> jugador;
+    QVector<QGraphicsRectItem*> obst;
+    qreal tiempoTrans;
+    bool clic;
+    bool jugadorVivo; // Variable para rastrear el estado del jugador
+    QString playerName;
+    void initGameScene();
+    void movjug(Jugador *jug1);
+    void hmov(Particula *bola);
+    void enemigomov(Enemigos *enem1);
+    void animacionTiro(const QPointF &posTiro);
+    void incrementarContador();
+    void Trampa(Trampas *trampa);
+    void mousePressEvent(QMouseEvent *event);
+    void animacionTiroDesdeEnemigo();
+    void clearGameOverScene();
+    void writeScoreToFile(const QString& name, int score);
+signals:
+    void jugadorMuerto();
 };
+
 #endif // MAINWINDOW_H

@@ -12,19 +12,21 @@ class Enemigos : public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
 public:
-    Enemigos(QGraphicsView *view, QGraphicsItem* im = nullptr);
-    //void movimiento(qreal newX, qreal newY);
+    Enemigos(QGraphicsView *view, qreal startX, qreal startY, QGraphicsItem* im = nullptr);
     void movimiento(int dx, int dy);
+    Enemigos(const Enemigos &other, qreal newX, qreal newY);
     void setSpritederecha(int dir);
     void setSpriteizquierda(int dir);
-    void incrementarColision(); // Nuevo método para incrementar el contador de colisiones
+    void incrementarColision();
     int getContador() const;
-    qreal x = 200;
-    qreal y = 200;
+    //void disparar();
+    //void disparar();
+    qreal x;
+    qreal y;
+
 private:
-    //qreal x = 200;
-   // qreal y = 200;
-    bool movingRight; // Variable para almacenar la dirección de movimient
+    Jugador *jug1; // Referencia al jugador
+    bool movingRight;
     int direccion;
     QSize viewRect;
     int dir = 1;
@@ -36,10 +38,13 @@ private:
     int spriteHeight;
     QPixmap sprite;
     QPixmap spriteSheet;
-    int contadorColisiones = 0; // Contador de colisiones
-    QVector<Enemigos*> enemigos; // Vector para almacenar los enemigos
-    int velocidadX; // Velocidad de movimiento en el eje x
-    int velocidadY; // Velocidad de movimiento en el eje y
+    int contadorColisiones = 0;
+    QVector<Enemigos*> enemigos;
+    QList<QGraphicsRectItem*> obst;
+    int velocidadX;
+    int velocidadY;
 };
 
 #endif // ENEMIGOS_H
+
+

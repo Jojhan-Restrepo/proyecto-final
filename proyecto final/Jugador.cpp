@@ -8,25 +8,32 @@
 #include "Particula.h"
 #include <cmath>
 #include <QTimer>
-//Definir el jugador y la imgen
-const qreal Jugador::SALTO_ALTURA = 50; // Altura máxima del salto
-const int Jugador::SALTO_DURACION = 100; // Duración del salto en milisegundos
-const int Jugador::SALTO_INTERVALO = 10; // Intervalo del temporizador en milisegundos
+#include <QObject>
+
+const qreal Jugador::SALTO_ALTURA = 30;
+const int Jugador::SALTO_DURACION = 80;
+const int Jugador::SALTO_INTERVALO = 10;
 const qreal Jugador::GRAVEDAD = 0.1;
-Jugador::Jugador(QGraphicsView *view,QGraphicsItem *im):QGraphicsPixmapItem(im)
-{
-    //setPixmap(QPixmap(":/sprites.png"));
-    yInicial = y;
-    x=0;
-    y=275;
-    setFlag(QGraphicsItem::ItemIsFocusable); //Inicialización opcional para decir que tiene el foco para eventos del teclado
-    //sceneRect = scene->sceneRect();
-    //qDebug() << scene->sceneRect();
+
+Jugador::Jugador(QGraphicsView *view, QGraphicsItem *parent)
+    : QGraphicsPixmapItem(parent), contadorColisiones(0), enemigosEliminados(0), cont1(0), cont(0) {
+    yInicial = 275;
+    x = 0;
+    y = yInicial;
+    setFlag(QGraphicsItem::ItemIsFocusable);
     viewRect = view->size();
     QRectF sceneRect = view->sceneRect();
-    qDebug() << viewRect << " "<< sceneRect << " "<<view->size().width();
-    bool enSalto = false;
-    qreal velocidadVertical = 0;
+    qDebug() << viewRect << " " << sceneRect << " " << view->size().width();
+    enSalto = false;
+    velocidadVertical = 0;
+}
+
+void Jugador::incrementarColision() {
+    contadorColisiones++;
+}
+
+int Jugador::getContador() const {
+    return contadorColisiones;
 }
 
 void Jugador::cambiarSprite(const QString &spritePath, int dir) {
@@ -34,90 +41,73 @@ void Jugador::cambiarSprite(const QString &spritePath, int dir) {
     int spriteHeight = 68;
     int scaledWidth = 100;
     int scaledHeight = 68;
-    spriteX = spriteWidth * cont1; // Calcula la posición X del sprite actual
-    spriteY = dir; // Ajusta la posición Y según la dirección
-    spriteSheet.load("C:/Users/JojhanSebastian/Downloads/Soldier_1/Shot_1.png");
+    spriteX = spriteWidth * cont1;
+    spriteY = dir;
+    spriteSheet.load(spritePath);
     QPixmap sprite = spriteSheet.copy(spriteX, spriteY, spriteWidth, spriteHeight);
     QPixmap scaledSprite = sprite.scaled(scaledWidth, scaledHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
     setPixmap(scaledSprite);
     cont1++;
-    if (cont1 == 4) { cont1 = 0; }  // Asegura que el contador se reinicie correctamente
+    if (cont1 == 4) {
+        cont1 = 0;
+    }
 }
 
 void Jugador::keyPressEvent(QKeyEvent *event) {
     switch (event->key()) {
     case Qt::Key_A:
-        // Movimiento a la izquierda
         moveBy(-5, 0);
         setSpriteizquierda(0);
         break;
     case Qt::Key_D:
-        // Movimiento a la derecha
         moveBy(5, 0);
         setSpritederecha(0);
         break;
     case Qt::Key_W:
-        // Salto solo si no está en otro salto
-        if (!enSalto) {
-            enSalto = true;
-            Salto();
-        }
+        IniciarSalto();
         break;
     case Qt::Key_S:
-        // Movimiento hacia abajo
-        moveBy(0, 5);
         break;
     default:
         QGraphicsItem::keyPressEvent(event);
     }
 }
 
-
-void Jugador::moveBy(int dx, int dy)
-{
+void Jugador::moveBy(int dx, int dy) {
     qreal newX = x + dx;
     qreal newY = y + dy;
-    setPos(newX, newY);
-
-    if (newX > 3880 - 80 || newX < 0) {
-        newX -= dx;
-    }
-    if (newY > 275 || newY < 154) {
-        newY -= dy;
-    }
 
     bool collisionDetected = false;
-
-    for (QGraphicsItem *item : collidingItems())
-    {
-        if (dynamic_cast<QGraphicsRectItem *>(item))
-        {
+    setPos(newX, newY);
+    for (QGraphicsItem *item : collidingItems()) {
+        if (dynamic_cast<QGraphicsRectItem *>(item)) {
             collisionDetected = true;
             break;
         }
     }
 
-    if (collisionDetected)
-    {
-        setPos(x, y); // Revertir a la posición anterior
-    }
-    else
-    {
+    if (collisionDetected) {
+        setPos(x, y);
+    } else {
+        if (newX > 3880 - 80) newX = 3880 - 80;
+        if (newX < 0) newX = 0;
+        if (newY > yInicial) newY = yInicial;
+        if (newY < 175) newY = 175;
+
+        setPos(newX, newY);
         x = newX;
         y = newY;
     }
-
 }
 
-void Jugador::setSpritederecha(int dir)
-{
+void Jugador::setSpritederecha(int dir) {
     int spriteWidth = 128;
     int spriteHeight = 69;
     int scaledWidth = 100;
     int scaledHeight = 69;
-    spriteX = spriteWidth * cont; // Calcula la posición X del sprite actual
-    spriteY = dir; // Ajusta la posición Y según la dirección
+    spriteX = spriteWidth * cont;
+    spriteY = dir;
     spriteSheet.load("C:/Users/JojhanSebastian/Downloads/Soldier_1/Walk12.png");
 
     QPixmap sprite = spriteSheet.copy(spriteX, spriteY, spriteWidth, spriteHeight);
@@ -126,16 +116,18 @@ void Jugador::setSpritederecha(int dir)
     setPixmap(scaledSprite);
 
     cont++;
-    if(cont == 7) { cont = 0; }
+    if (cont == 7) {
+        cont = 0;
+    }
 }
-void Jugador::setSpriteizquierda(int dir)
-{
+
+void Jugador::setSpriteizquierda(int dir) {
     int spriteWidth = 128;
     int spriteHeight = 128;
     int scaledWidth = 100;
     int scaledHeight = 100;
-    spriteX = spriteWidth * cont; // Calcula la posición X del sprite actual
-    spriteY = dir; // Ajusta la posición Y según la dirección
+    spriteX = spriteWidth * cont;
+    spriteY = dir;
     spriteSheet.load("C:/Users/JojhanSebastian/Downloads/Soldier_1/Walkiz.png");
 
     QPixmap sprite = spriteSheet.copy(spriteX, spriteY, spriteWidth, spriteHeight);
@@ -143,23 +135,28 @@ void Jugador::setSpriteizquierda(int dir)
 
     setPixmap(scaledSprite);
     cont++;
-    if(cont == 7) { cont = 0; }
+    if (cont == 7) {
+        cont = 0;
+    }
 }
 
-void Jugador::Salto() {
-    dy = -5; // Cambié la velocidad inicial del salto a -5 para que el personaje se mueva hacia arriba más rápidamente
-    QTimer *saltoTimer = new QTimer(this);
-    connect(saltoTimer, &QTimer::timeout, [=]() {
-        moveBy(0, dy);
-        dy += GRAVEDAD; // Agregué la gravedad al dy en cada iteración para simular el efecto de la gravedad
-        if (y >= yInicial) { // Detenemos el salto cuando el personaje alcanza el suelo
-            y = yInicial;
-            enSalto = false;
-            saltoTimer->stop();
-            delete saltoTimer;
-        }
-    });
-    saltoTimer->start(20);
+void Jugador::IniciarSalto() {
+    if (!enSalto) {
+        enSalto = true;
+        dy = -5;
+        QTimer *saltoTimer = new QTimer();
+        QObject::connect(saltoTimer, &QTimer::timeout, [=]() {
+            moveBy(0, dy);
+            dy += GRAVEDAD;
+            if (y >= yInicial) {
+                y = yInicial;
+                enSalto = false;
+                saltoTimer->stop();
+                delete saltoTimer;
+            }
+        });
+        saltoTimer->start(20);
+    }
 }
 
 void Jugador::Caer() {
@@ -168,9 +165,9 @@ void Jugador::Caer() {
 
 void Jugador::ActualizarPosicionVertical() {
     if (enSalto) {
-        velocidadVertical += GRAVEDAD; // Aplica la gravedad
-        qreal nuevaY = y + velocidadVertical; // Calcula la nueva posición vertical
-        if (nuevaY > yInicial) { // Detiene el salto al alcanzar la altura inicial
+        velocidadVertical += GRAVEDAD;
+        qreal nuevaY = y + velocidadVertical;
+        if (nuevaY > yInicial) {
             nuevaY = yInicial;
             velocidadVertical = 0;
             enSalto = false;
@@ -179,5 +176,15 @@ void Jugador::ActualizarPosicionVertical() {
     }
 }
 
+void Jugador::incrementarEnemigosEliminados() {
+    enemigosEliminados++;
+}
 
+void Jugador::enemigoEliminado() {
+    incrementarEnemigosEliminados();
+    qDebug() << "Enemigos eliminados:" << getEnemigos();
+}
 
+int Jugador::getEnemigos() const {
+    return enemigosEliminados;
+}

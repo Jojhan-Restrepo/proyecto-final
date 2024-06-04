@@ -1,0 +1,7 @@
+Scores viejos:
+
+Nombre de jugador: Jojhan --- Score:20 asesinatos --- Vida al final: 15
+Nombre de jugador: Sebastian --- Score:30 asesinatos --- Vida al final: 17
+Nombre de jugador :JojhanSebastian--- Score:5 asesinatos---- Vida final: 5endlNombre de jugador :loco--- Score:5 asesinatos---- Vida final: 5
+Nombre de jugador :hola--- Score:5 asesinatos---- Vida final: 15
+Nombre de jugador :JojhanSebastian--- Score:1 asesinatos---- Vida final: 19
