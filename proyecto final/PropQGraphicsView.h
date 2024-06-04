@@ -18,3 +18,4 @@ private:
     QGraphicsItem *playerItem;
 };
 #endif // PROPQGRAPHICSVIEW_H
+
