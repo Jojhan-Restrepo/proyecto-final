@@ -92,7 +92,7 @@ void Particula::movParabolico(float* dt)
         //velIn=0.8*velIn;
     }
 
-    qDebug()<<posX<<posY<<theta<<velIn<<*dt<<dir<<velIn*cos(theta)<<velIn*sin(theta) - 9.8* *dt;
+    //qDebug()<<posX<<posY<<theta<<velIn<<*dt<<dir<<velIn*cos(theta)<<velIn*sin(theta) - 9.8* *dt;
 
     setPos(posX, posY);
 }

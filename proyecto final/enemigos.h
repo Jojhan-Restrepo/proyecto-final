@@ -1,45 +1,34 @@
 #ifndef ENEMIGOS_H
 #define ENEMIGOS_H
 
-#include <QObject>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsItem>
-#include <QGraphicsView>
-#include <QVector> // Se agrega para utilizar QVector
+#include "entidad.h"
+#include <QVector>
 #include "Jugador.h"
 
-class Enemigos : public QObject, public QGraphicsPixmapItem
-{
+class Enemigos : public Entidad {
     Q_OBJECT
 public:
-    Enemigos(QGraphicsView *view, QGraphicsItem* im = nullptr);
-    //void movimiento(qreal newX, qreal newY);
-    void movimiento(int dx, int dy);
+    Enemigos(QGraphicsView *view, qreal startX, qreal startY, QGraphicsItem* im = nullptr);
+    Enemigos(const Enemigos &other, qreal newX, qreal newY);
+
+    void mover(int dx, int dy) override;
+    void moveBy(int dx, int dy) override;
     void setSpritederecha(int dir);
     void setSpriteizquierda(int dir);
-    void incrementarColision(); // Nuevo método para incrementar el contador de colisiones
+    void incrementarColision();
     int getContador() const;
-    qreal x = 200;
-    qreal y = 200;
+
 private:
-    //qreal x = 200;
-   // qreal y = 200;
-    bool movingRight; // Variable para almacenar la dirección de movimient
+    Jugador *jug1; // Referencia al jugador
+    bool movingRight;
     int direccion;
-    QSize viewRect;
-    int dir = 1;
-    bool flag = true;
-    int cont = 0;
-    int spriteX = 0;
-    int spriteY = 120;
-    int spriteWidth;
-    int spriteHeight;
-    QPixmap sprite;
-    QPixmap spriteSheet;
-    int contadorColisiones = 0; // Contador de colisiones
-    QVector<Enemigos*> enemigos; // Vector para almacenar los enemigos
-    int velocidadX; // Velocidad de movimiento en el eje x
-    int velocidadY; // Velocidad de movimiento en el eje y
+    bool flag;
+    int cont;
+    int contadorColisiones;
+    QVector<Enemigos*> enemigos;
+    QList<QGraphicsRectItem*> obst;
+    int velocidadX;
+    int velocidadY;
 };
 
 #endif // ENEMIGOS_H

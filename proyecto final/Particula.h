@@ -35,3 +35,4 @@ void movimiento(); //Los slots son miembros de una clase que se pueden conectar 
 };
 
 #endif // PARTICULA_H
+

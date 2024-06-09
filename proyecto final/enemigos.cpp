@@ -1,35 +1,51 @@
-#include "enemigos.h"
+#include "Enemigos.h"
 #include <QGraphicsScene>
 #include <QLabel>
 #include <QPixmap>
-#include <QKeyEvent>
 #include <QDebug>
 #include <QGraphicsPixmapItem>
+#include "Bala.h"
+#include "Jugador.h"
+#include "BalaEnemigo.h"
+#include <cmath>
+#include <cstdlib>
 
-//Definir el jugador y la imgen
-Enemigos::Enemigos(QGraphicsView *view,QGraphicsItem *im):QGraphicsPixmapItem(im)
-{
-    //x=0;
-    //y=0;
-    setFlag(QGraphicsItem::ItemIsFocusable); //Inicialización opcional para decir que tiene el foco para eventos del teclado
+Enemigos::Enemigos(QGraphicsView *view, qreal startX, qreal startY, QGraphicsItem *im)
+    : Entidad(view, im), movingRight(true), direccion(1), flag(true), cont(0), contadorColisiones(0), velocidadX(5), velocidadY(0) {
+    x = startX;
+    y = startY;
+    setFlag(QGraphicsItem::ItemIsFocusable);
     viewRect = view->size();
-    QRectF sceneRect = view->sceneRect();
-    qDebug() << viewRect << " "<< sceneRect << " "<<view->size().width();
     spriteSheet.load("C:/Users/JojhanSebastian/Downloads/Soldier_2/Walk.png");
     QPixmap sprite = spriteSheet.copy(spriteX, spriteY, spriteWidth, spriteHeight);
     setPixmap(sprite);
-    velocidadX = 5; // Velocidad de movimiento en el eje x
-    velocidadY = 0; // Velocidad de movimiento en el eje y
-    movingRight = true;
+    setPos(x, y);
 }
 
-void Enemigos::movimiento(int dx, int dy) {
-    qreal newX = x + dx;
+Enemigos::Enemigos(const Enemigos &other, qreal newX, qreal newY)
+    : Entidad(other.scene()->views().first(), other.parentItem()), movingRight(other.movingRight), direccion(other.direccion),
+    flag(other.flag), cont(other.cont), contadorColisiones(0), velocidadX(other.velocidadX),
+    velocidadY(other.velocidadY) {
+    x = newX;
+    y = newY;
+    spriteSheet = other.spriteSheet;
+    spriteX = other.spriteX;
+    spriteY = other.spriteY;
+    setPixmap(other.pixmap());
+    setPos(newX, newY);
+}
+
+void Enemigos::mover(int dx, int dy) {
+    moveBy(dx, dy);
+}
+
+void Enemigos::moveBy(int dx, int dy) {
+    qreal newX = x + (movingRight ? dx : -dx);
     qreal newY = y + dy;
 
-    bool collisionDetected = false; // Variable para detectar colisiones con otros objetos
+    bool collisionDetected = false;
 
-    // Verifica si hay colisiones con objetos en la escena
+    setPos(newX, newY);
     for (QGraphicsItem *item : collidingItems()) {
         if (dynamic_cast<QGraphicsRectItem *>(item)) {
             collisionDetected = true;
@@ -37,47 +53,26 @@ void Enemigos::movimiento(int dx, int dy) {
         }
     }
 
-    // Si hay colisión con algún objeto, invierte la dirección de movimiento
     if (collisionDetected) {
-        dx = -dx;
-        movingRight = !movingRight; // Cambia la dirección
+        movingRight = !movingRight;
+        newX = x + (movingRight ? dx : -dx);
     }
 
-    // Si el enemigo está en los bordes horizontalmente, cambia de dirección
     if (newX >= 3880 - 80 || newX <= 0) {
         movingRight = !movingRight;
+        newX = x + (movingRight ? dx : -dx);
     }
 
-    // Ajusta la posición en función de la dirección de movimiento
     if (movingRight) {
-        newX = x + dx;
-        setSpritederecha(18); // Ajusta el sprite para que mire hacia la derecha
+        setSpritederecha(0);
     } else {
-        newX = x - dx;
-        setSpriteizquierda(18); // Ajusta el sprite para que mire hacia la izquierda
+        setSpriteizquierda(0);
     }
 
-    // Verifica si hay colisión con los rectángulos y ajusta la posición si es necesario
-    QRectF newRect(newX, newY, pixmap().width(), pixmap().height());
-    for (QGraphicsItem *item : collidingItems()) {
-        if (dynamic_cast<QGraphicsRectItem *>(item)) {
-            QRectF intersectedRect = newRect.intersected(item->boundingRect());
-            if (!intersectedRect.isEmpty()) {
-                if (dx > 0) {
-                    newX -= intersectedRect.width();
-                } else {
-                    newX += intersectedRect.width();
-                }
-            }
-        }
-    }
-
-    // Aplica la nueva posición
     setPos(newX, newY);
     x = newX;
     y = newY;
 }
-
 
 void Enemigos::incrementarColision() {
     contadorColisiones++;
@@ -86,36 +81,39 @@ void Enemigos::incrementarColision() {
 int Enemigos::getContador() const {
     return contadorColisiones;
 }
-void Enemigos::setSpritederecha(int dir)
-{
+
+void Enemigos::setSpritederecha(int dir) {
     int spriteWidth = 128;
-    int spriteHeight = 128;
+    int spriteHeight = 69;
     int scaledWidth = 100;
-    int scaledHeight = 100;
-    spriteX = spriteWidth * cont; // Calcula la posición X del sprite actual
-    spriteY = dir; // Ajusta la posición Y según la dirección
+    int scaledHeight = 69;
+    spriteX = spriteWidth * cont;
+    spriteY = dir;
     spriteSheet.load("C:/Users/JojhanSebastian/Downloads/Soldier_2/Walk.png");
+
     QPixmap sprite = spriteSheet.copy(spriteX, spriteY, spriteWidth, spriteHeight);
     QPixmap scaledSprite = sprite.scaled(scaledWidth, scaledHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     setPixmap(scaledSprite);
     cont++;
-    if(cont == 7) { cont = 0; }
+    if (cont == 8) {
+        cont = 0;
+    }
 }
-void Enemigos::setSpriteizquierda(int dir)
-{
+
+void Enemigos::setSpriteizquierda(int dir) {
     int spriteWidth = 128;
-    int spriteHeight = 128;
+    int spriteHeight = 68;
     int scaledWidth = 100;
-    int scaledHeight = 100;
-    spriteX = spriteWidth * cont; // Calcula la posición X del sprite actual
-    spriteY = dir; // Ajusta la posición Y según la dirección
+    int scaledHeight = 68;
+    spriteX = spriteWidth * cont;
+    spriteY = dir;
     spriteSheet.load("C:/Users/JojhanSebastian/Downloads/Soldier_2/Walkiz.png");
 
     QPixmap sprite = spriteSheet.copy(spriteX, spriteY, spriteWidth, spriteHeight);
     QPixmap scaledSprite = sprite.scaled(scaledWidth, scaledHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
     setPixmap(scaledSprite);
-
     cont++;
-    if(cont == 7) { cont = 0; }
+    if (cont == 8) {
+        cont = 0;
+    }
 }

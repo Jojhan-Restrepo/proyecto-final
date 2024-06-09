@@ -1,17 +1,19 @@
 #include "bala.h"
 #include <QDebug>
+#include <cstdlib>  // Para usar rand()
 
-Bala::Bala(QGraphicsScene *scene, const QPointF &startPos, const QPointF &targetPos, QVector<Enemigos*> &enemigos, QList<QGraphicsRectItem *> &obst)
-    : targetPos(targetPos), enemigos(enemigos), obst(obst) {
+Bala::Bala(QGraphicsScene *scene, const QPointF &startPos, const QPointF &targetPos, QVector<Enemigos*> &enemigos, QVector<Jugador*> &jugador, QList<QGraphicsRectItem *> &obst)
+    : targetPos(targetPos), enemigos(enemigos), jugador(jugador), obst(obst) {
+    if (!scene || enemigos.isEmpty() || jugador.isEmpty() || obst.isEmpty()) {
+        qDebug() << "Algunos punteros son nulos.";
+        return;
+    }
     setRect(70, 20, 10, 10);
     setPos(startPos);
-    // Cargar la imagen de la bala desde el archivo
+
     QPixmap balaImage("C:/Users/JojhanSebastian/Downloads/Soldier_1/corazon.png");
-    // Escalar la imagen si es necesario
-    balaImage = balaImage.scaled(10, 10); // Escala la imagen al tamaño de la bala
-    // Establecer la imagen en la bala
+    balaImage = balaImage.scaled(10, 10);
     setBrush(QBrush(balaImage));
-    // Establecer el color de la pluma en transparente
     setPen(Qt::NoPen);
     scene->addItem(this);
     timer = new QTimer(this);
@@ -20,6 +22,13 @@ Bala::Bala(QGraphicsScene *scene, const QPointF &startPos, const QPointF &target
 }
 
 void Bala::mover() {
+    if (jugador.isEmpty()) {
+        timer->stop();
+        scene()->removeItem(this);
+        delete this;
+        return;
+    }
+
     QPointF posActual = pos();
     QPointF posSig = 0.1 * (targetPos - posActual);
     moveBy(posSig.x(), posSig.y());
@@ -38,9 +47,17 @@ void Bala::mover() {
         if (enem && collidesWithItem(enem)) {
             enem->incrementarColision();
             if (enem->getContador() >= 10) {
+                qreal newX = rand() % 3880;
+                qreal newY = 270;
+
+                Enemigos *nuevoEnemigo = new Enemigos(*enem, newX, newY);
+                scene()->addItem(nuevoEnemigo);
+                enemigos.append(nuevoEnemigo);
+
                 scene()->removeItem(enem);
                 delete enem;
-                enemigos[i] = nullptr;  // Establece el puntero a nullptr para evitar accesos futuros
+                enemigos[i] = nullptr;
+                emit enemigoEliminado(); // Emitir la señal
             }
             scene()->removeItem(this);
             delete this;
@@ -56,5 +73,3 @@ void Bala::mover() {
         return;
     }
 }
-
-
